@@ -1,0 +1,9 @@
+# Core FastAPI e Servidor
+fastapi
+uvicorn[standard]
+
+# Banco de Dados
+sqlalchemy              # SQLAlchemy Core e ORM
+asyncpg                 # Driver assíncrono para PostgreSQL
+pydantic-settings       # Para gerenciamento de variáveis de ambiente
+alembic                 # Ferramenta de migração
