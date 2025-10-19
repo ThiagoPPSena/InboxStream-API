@@ -1,6 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query
 from typing import Optional
-import json
 from datetime import datetime
 
 # Simulação de um "banco de dados" na memória para testes

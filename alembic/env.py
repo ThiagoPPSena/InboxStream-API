@@ -9,9 +9,9 @@ from sqlalchemy.engine import Connection              # <-- NOVO
 from alembic import context
 
 # Importações do Projeto FastAPI:
-from app.database.base import Base                  # <-- NOVO: Base Declarativa
-from app.database.config import settings            # <-- NOVO: Objeto de Configuração
-from app.database import models                     # <-- NOVO: Garante que os modelos sejam importados
+from src.database.base import Base                  # <-- NOVO: Base Declarativa
+from src.database.config import settings            # <-- NOVO: Objeto de Configuração
+from src.database import models                     # <-- NOVO: Garante que os modelos sejam importados
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
