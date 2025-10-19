@@ -13,4 +13,4 @@ app.include_router(email_router.router, prefix="/api/v1")
 def health_check():
     return {"status": "ok", "service": "InboxStream API is running!"}
 
-# Para rodar: uvicorn app.main:app --reload
+# Para rodar: uvicorn src.main:app --reload
