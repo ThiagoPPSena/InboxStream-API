@@ -25,15 +25,15 @@ class EmailRepository:
             emails = emails.where(Email.category.ilike(category))
         
         if initial_date:
-            emails = emails.where(Email.inserted_at >= initial_date)
+            emails = emails.where(Email.date >= initial_date)
             
         if end_date:
-            emails = emails.where(Email.inserted_at <= end_date)
+            emails = emails.where(Email.date <= end_date)
             
         if order == "desc":
-            emails = emails.order_by(desc(Email.inserted_at))
+            emails = emails.order_by(desc(Email.date))
         else:
-            emails = emails.order_by(asc(Email.inserted_at))
+            emails = emails.order_by(asc(Email.date))
             
         emails = emails.limit(limit).offset(offset)
         
@@ -42,9 +42,9 @@ class EmailRepository:
         return list(result.scalars().all())
 
     async def get_email_by_id(self, email_id: str) -> Optional[Email]:
-        stmt = select(Email).where(Email.id == email_id)
+        email = select(Email).where(Email.id == email_id)
         
-        return await self.db_session.scalar(stmt)
+        return await self.db_session.scalar(email)
         
     async def create_email(self, email_data: Dict[str, Any]) -> Email:
         new_email = Email(**email_data)

@@ -1,11 +1,11 @@
 from fastapi import APIRouter, HTTPException, Query, Depends
-from typing import Optional, List
+from typing import Optional
 from datetime import datetime
 
 from src.database.base import get_db
 from src.repositories.emails import EmailRepository
 from src.services.emails import EmailService
-from src.database.models import Email
+from src.schemas.emails import Email as EmailSchema
 from sqlalchemy.ext.asyncio import AsyncSession
 
 router = APIRouter(tags=["Emails"])
@@ -18,7 +18,7 @@ def get_email_service(repo: EmailRepository = Depends(get_email_repo)) -> EmailS
 
 @router.post("/emails")
 async def ingest_email(
-    email_data, 
+    email_data: EmailSchema, 
     email_service: EmailService = Depends(get_email_service)
 ):
     """
