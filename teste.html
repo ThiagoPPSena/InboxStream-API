@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Teste de WebSocket FastAPI</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        #log { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; background-color: #f9f9f9; }
+        .message { margin-bottom: 5px; padding: 5px; border-bottom: 1px dotted #eee; }
+        .success { color: green; }
+        .error { color: red; font-weight: bold; }
+        .info { color: blue; }
+    </style>
+</head>
+<body>
+    <h1>Teste de Conexão WebSocket</h1>
+    
+    <p>
+        Status da Conexão: <span id="connectionStatus" class="error">DESCONECTADO</span>
+    </p>
+
+    <h2>Log de Notificações Recebidas</h2>
+    <div id="log">
+        <p class="info">Aguardando conexão...</p>
+    </div>
+
+    <script>
+        // Substitua 'localhost:8000' pelo endereço e porta onde seu FastAPI está rodando
+        // Use 'ws' para desenvolvimento local ou 'wss' para produção (com HTTPS)
+        const websocketUrl = "http://localhost:8000/api/v1/websocket";
+        let ws = null;
+        const logDiv = document.getElementById('log');
+        const statusSpan = document.getElementById('connectionStatus');
+
+        function logMessage(message, className = '') {
+            const p = document.createElement('p');
+            p.className = 'message ' + className;
+            p.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(p);
+            // Rolagem automática para o final
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function connectWebSocket() {
+            if (ws) {
+                ws.close();
+            }
+            
+            ws = new WebSocket(websocketUrl);
+
+            ws.onopen = function(event) {
+                logMessage("Conexão estabelecida com sucesso.", 'success');
+                statusSpan.textContent = "CONECTADO";
+                statusSpan.className = "success";
+            };
+
+            ws.onmessage = function(event) {
+                try {
+                    const data = JSON.parse(event.data);
+                    logMessage("Notificação de E-mail Recebida (JSON):", 'info');
+                    // Exibe o JSON formatado para facilitar a leitura
+                    logMessage(`<pre>${JSON.stringify(data, null, 2)}</pre>`, 'message');
+                } catch (e) {
+                    logMessage(`Dados de texto simples recebidos: ${event.data}`, 'message');
+                }
+            };
+
+            ws.onclose = function(event) {
+                statusSpan.textContent = "DESCONECTADO";
+                statusSpan.className = "error";
+                if (event.wasClean) {
+                    logMessage(`Conexão fechada de forma limpa, código=${event.code} razão=${event.reason}`, 'error');
+                } else {
+                    logMessage("Conexão interrompida de forma abrupta. Tentando reconectar em 5s...", 'error');
+                    // Tenta reconectar após 5 segundos
+                    setTimeout(connectWebSocket, 5000); 
+                }
+            };
+
+            ws.onerror = function(error) {
+                logMessage(`Erro no WebSocket: ${error}`, 'error');
+                statusSpan.textContent = "ERRO";
+                statusSpan.className = "error";
+                ws.close();
+            };
+        }
+
+        // Inicia a conexão quando a página carrega
+        connectWebSocket();
+    </script>
+</body>
+</html>

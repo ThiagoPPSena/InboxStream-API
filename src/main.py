@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from src.routers import emails as email_router
+from src.routers import websockets as websocket_router
 
 app = FastAPI(
     title="InboxStream API",
@@ -8,6 +9,7 @@ app = FastAPI(
 )
 
 app.include_router(email_router.router, prefix="/api/v1")
+app.include_router(websocket_router.router, prefix="/api/v1")
 
 @app.get("/", tags=["Health"])
 def health_check():

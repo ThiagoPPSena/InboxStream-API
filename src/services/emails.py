@@ -1,7 +1,9 @@
-from typing import Optional, List, Dict, Any
+from typing import Optional, List
 from datetime import datetime
 from src.repositories.emails import EmailRepository 
 from src.database.models import Email
+from src.services.websockets import manager
+from src.schemas.emails import Email as EmailSchema
 
 
 class EmailService:
@@ -32,11 +34,10 @@ class EmailService:
     async def get_email_detail(self, email_id: int) -> Optional[Email]:
         return await self.repo.get_email_by_id(email_id)
 
-    async def ingest_email(self, email_data: Dict[str, Any]) -> Email:
-        new_email = await self.repo.create_email(email_data)
+    async def ingest_email(self, email_data: EmailSchema) -> Email:
         
-        # 2. (TODO: Lógica de Notificação)
-        # Se você tiver um Manager de WebSockets, notifique aqui
-        # await websocket_manager.broadcast(f"Novo email: {new_email.assunto}")
+        await manager.broadcast(email_data)
+
+        new_email = await self.repo.create_email(email_data)
         
         return new_email

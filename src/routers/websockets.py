@@ -3,21 +3,21 @@ from src.services.websockets import manager
 
 router = APIRouter(tags=["WebSockets"])
 
-@router.websocket("/ws/notifications")
+@router.websocket("/websocket")
 async def websocket_endpoint(websocket: WebSocket):
     """
-    Endpoint principal para estabelecer e manter a conexão WebSocket.
+    Endpoint WebSocket para clientes que desejam receber notificações de e-mail.
     """
     await manager.connect(websocket)
+    print(f"Cliente conectado: {websocket.client}")
     
     try:
         while True:
             data = await websocket.receive_text()
-            pass
-
+            
     except WebSocketDisconnect:
         manager.disconnect(websocket)
-        print(f"Cliente desconectado.")
+        print(f"Cliente desconectado: {websocket.client}")
     except Exception as e:
         manager.disconnect(websocket)
-        print(f"Erro inesperado no WebSocket: {e}")
+        print(f"Exceção no WebSocket: {e}")
