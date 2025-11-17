@@ -1,6 +1,6 @@
 from typing import Optional, List, Dict, Any
 from datetime import datetime
-from sqlalchemy import select, desc, asc
+from sqlalchemy import select, desc, asc, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.engine import Result
 from src.database.models import Email 
@@ -11,7 +11,7 @@ class EmailRepository:
 
     async def get_filtered_emails(
         self,
-        category: Optional[str],
+        category: Optional[List[str]],
         initial_date: Optional[datetime],
         end_date: Optional[datetime],
         order: str,
@@ -21,8 +21,13 @@ class EmailRepository:
         
         emails = select(Email)
         
+        cats: List[str] = []
         if category:
-            emails = emails.where(Email.category.ilike(category))
+            for item in category:
+                cats.extend([c.strip() for c in item.split(",") if c.strip()])
+            if cats:
+                lowered = [c.lower() for c in cats]
+                emails = emails.where(func.lower(Email.category).in_(lowered))
         
         if initial_date:
             emails = emails.where(Email.date >= initial_date)
@@ -38,8 +43,13 @@ class EmailRepository:
         emails = emails.limit(limit).offset(offset)
         
         result: Result = await self.db_session.execute(emails)
+
+        count_stmt = select(func.count()).select_from(Email)
+
+        count_result = await self.db_session.execute(count_stmt)
+        total: int = int(count_result.scalar_one())
         
-        return list(result.scalars().all())
+        return list(result.scalars().all()), total
 
     async def get_email_by_id(self, email_id: str) -> Optional[Email]:
         email = select(Email).where(Email.id == email_id)

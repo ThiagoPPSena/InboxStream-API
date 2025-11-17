@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException, Query, Depends
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 from src.database.base import get_db
@@ -30,7 +30,10 @@ async def ingest_email(
 
 @router.get("/emails")
 async def get_all_emails(
-    category: Optional[str] = Query(None, description="Filtra e-mails por categoria."),
+    category: Optional[List[str]] = Query(
+        None,
+        description="Filtra e-mails por categoria. Pode repetir: ?category=a&category=b ou usar vírgula: ?category=a,b"
+    ),
     initial_date: Optional[datetime] = Query(None, description="Filtra e-mails recebidos a partir desta data."),
     end_date: Optional[datetime] = Query(None, description="Filtra e-mails recebidos até esta data."),
     order: str = Query("desc", regex="^(asc|desc)$", description="Ordem de classificação por data: 'asc' (mais antigos) ou 'desc' (mais recentes)."),

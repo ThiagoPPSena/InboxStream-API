@@ -20,7 +20,7 @@ class EmailService:
         offset: int,
     ) -> List[Email]:
         
-        emails = await self.repo.get_filtered_emails(
+        emails, total = await self.repo.get_filtered_emails(
             category=category,
             initial_date=initial_date,
             end_date=end_date,
@@ -29,7 +29,7 @@ class EmailService:
             offset=offset,
         )
         
-        return emails
+        return emails, total
 
     async def get_email_detail(self, email_id: int) -> Optional[Email]:
         return await self.repo.get_email_by_id(email_id)
