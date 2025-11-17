@@ -9,10 +9,8 @@ app = FastAPI(
     description="API para ingestão, categorização e notificação em tempo real de e-mails."
 )
 
-
 origins = [
-    "http://localhost:5173",   
-    "http://127.0.0.1:5173",
+    "https://projeto-de-extensao-web.onrender.com/",
 ]
 
 app.add_middleware(
