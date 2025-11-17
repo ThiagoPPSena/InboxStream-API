@@ -8,3 +8,4 @@ asyncpg                 # Driver assíncrono para PostgreSQL
 pydantic-settings       # Para gerenciamento de variáveis de ambiente
 alembic                 # Ferramenta de migração
 python-dotenv
+psycopg2
