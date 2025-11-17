@@ -10,7 +10,7 @@ app = FastAPI(
 )
 
 origins = [
-    "https://projeto-de-extensao-web.onrender.com/",
+    "https://projeto-de-extensao-web.onrender.com",
 ]
 
 app.add_middleware(
