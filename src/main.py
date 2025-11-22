@@ -9,13 +9,9 @@ app = FastAPI(
     description="API para ingestão, categorização e notificação em tempo real de e-mails."
 )
 
-origins = [
-    "https://projeto-de-extensao-web.onrender.com/",
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,          
+    allow_origins=["*"],          
     allow_credentials=True,
     allow_methods=["*"],            
     allow_headers=["*"],            

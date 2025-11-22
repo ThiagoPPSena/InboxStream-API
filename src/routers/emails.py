@@ -7,7 +7,9 @@ from src.repositories.emails import EmailRepository
 from src.services.emails import EmailService
 from src.schemas.emails import Email as EmailSchema
 from sqlalchemy.ext.asyncio import AsyncSession
+import logging
 
+logger = logging.getLogger("inboxstream.routers.emails")
 router = APIRouter(tags=["Emails"])
 
 def get_email_repo(db: AsyncSession = Depends(get_db)) -> EmailRepository:
@@ -24,8 +26,12 @@ async def ingest_email(
     """
     Recebe um novo e-mail do sistema externo, salva no DB e envia notificação.
     """
+
+    logger.info("ingest_email called")
+    logger.debug("payload: %s", email_data.model_dump())
     new_email = await email_service.ingest_email(email_data.model_dump())
 
+    logger.info("email ingested id=%s", getattr(new_email, "id", None))
     return new_email
 
 @router.get("/emails")
@@ -45,7 +51,11 @@ async def get_all_emails(
     """
     Retorna a lista de e-mails, com opções de filtro, ordenação e paginação.
     """
-    return await email_service.get_all_emails(
+    logger.info("get_all_emails called")
+    logger.debug("filters: category=%s, initial_date=%s, end_date=%s, order=%s, limit=%s, offset=%s",
+                 category, initial_date, end_date, order, limit, offset)
+
+    emails, total = await email_service.get_all_emails(
         category=category,
         initial_date=initial_date,
         end_date=end_date,
@@ -53,6 +63,10 @@ async def get_all_emails(
         limit=limit,
         offset=offset,
     )
+
+    logger.info("get_all_emails returning %d items (total=%d)", len(emails) if emails else 0, total)
+
+    return {"items": emails, "total": total} if not isinstance(emails, dict) else emails
 
 @router.get("/emails/{email_id}")
 async def get_email_detail(
@@ -62,9 +76,14 @@ async def get_email_detail(
     """
     Busca um e-mail específico pelo seu ID.
     """
+    logger.info("get_email_detail called id=%s", email_id)
+
     email = await email_service.get_email_detail(email_id)
     
     if email is None:
+        logger.warning("E-mail não encontrado id=%s", email_id)
         raise HTTPException(status_code=404, detail="E-mail não encontrado.")
+    
+    logger.info("get_email_detail found id=%s", email_id)
     
     return email
